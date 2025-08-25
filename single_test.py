@@ -1,17 +1,12 @@
 from random import randrange
 
-import pytest, json
+import json
 import pandas as pd
 import numpy as np
-from fastapi.testclient import TestClient
+import requests
 
 # Make sure to run pytest from the root directory where `api.py` and `dataset.py` are located.
-from api import app, BUSINESS_THRESHOLD
 from dataset import get_dataset
-
-
-# Instantiate the test client for the FastAPI application
-client = TestClient(app)
 
 
 def sanitize_for_json(data_dict: dict) -> dict:
@@ -39,6 +34,6 @@ client_row = application_df.iloc[randrange(len(application_df))].to_dict()
 target = client_row.pop('TARGET')
 
 payload = sanitize_for_json(client_row)
-response = client.post("/predict", json=payload)
+response = requests.post("https://p8-ikr6.onrender.com/predict", json=payload)
 assert response.status_code == 200, f"API call failed for client SK_ID_CURR {payload.get('SK_ID_CURR')}"
 print(json.dumps(response.json(), indent=2))
