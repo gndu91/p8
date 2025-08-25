@@ -127,7 +127,10 @@ st.title("Dashboard de Scoring Crédit pour 'Prêt à Dépenser'")
 st.markdown("Ce tableau de bord interactif aide les chargés de clientèle à comprendre les décisions d'octroi de crédit.")
 
 test_df = load_data('application_test')
-train_df = load_data('application_train')
+train_df = pd.concat([
+    load_data('application_train.0'),
+    load_data('application_train.1')
+])
 
 if test_df is None or train_df is None:
     st.stop()
