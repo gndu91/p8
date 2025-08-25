@@ -1,9 +1,5 @@
 # All the scripts will start the same way, by relocating and activating the environment
 
-# This will exit at the first failure
-# The most probable point of failure would be a non existent venv, to prevent messing with the global python env
-set -e
-
 test "${BASH_SOURCE[0]}" == "$0" && {
   echo WARNING: This script needs to be sourced, not run > /dev/stderr
   exit 1
