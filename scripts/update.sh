@@ -14,6 +14,7 @@ echo "Activating environment...done"
 echo "Updating..."
 pip install -U pip
 pip install -Ur requirements.txt
+pip install -r artifacts/requirements.txt
 echo "Updating...done"
 
 echo "Freezing..."
