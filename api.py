@@ -8,6 +8,8 @@ from pydantic import BaseModel, create_model
 from typing import Dict, Any, Union, List
 import pandas as pd
 from pathlib import Path
+from shap import TreeExplainer
+from sklearn.pipeline import Pipeline
 
 # Chemin vers le dossier contenant les artefacts du modèle
 ARTIFACTS_DIR = Path('artifacts')
@@ -36,10 +38,19 @@ def create_forgiving_pydantic_model(model_name: str = "ClientData") -> type[Base
     print(f"Modèle Pydantic '{model_name}' créé avec {len(fields)} champs.")
     return create_model(model_name, **fields)
 
-try:
-    model_pipeline = joblib.load(ARTIFACTS_DIR / "model.pkl")
-except ModuleNotFoundError:
-    raise ModuleNotFoundError("Please install the requirements defined in artifacts/requirements.txt")
+model_pipeline = joblib.load(ARTIFACTS_DIR / "model.pkl")
+
+# Added the explainer to get more informations from the model
+model_step = model_pipeline.named_steps['model']
+if type(model_step).__name__ == 'LGBMClassifier':
+    explainer = TreeExplainer(model_step)
+else:
+    raise NotImplementedError(
+        f"Unsupported model, please add the explainer associated with models of type {type(model_step)}")
+
+# TODO: Should I deepcopy the steps? Should I regenerate the preprocessing pipeline every time?
+# In order to have more verbosity, the first step is to fetch the preprocessing steps
+preprocessing_pipeline = Pipeline(model_pipeline.steps[:-1])
 
 ClientDataModel: type[BaseModel] = create_forgiving_pydantic_model()
 
@@ -72,6 +83,8 @@ async def predict(client_data: ClientDataModel):
             # pd.to_numeric will convert numbers, and also turn None into NaN
             client_df[col['name']] = pd.to_numeric(client_df[col['name']])
 
+    shap_values = explainer.shap_values(post_df := preprocessing_pipeline.transform(client_df))
+
     try:
         probability = model_pipeline.predict_proba(client_df)[0][1]
     except Exception as e:
@@ -85,5 +98,7 @@ async def predict(client_data: ClientDataModel):
         "client_id": client_id,
         "probability_default": round(float(probability), 4),
         "decision": "yes" if probability < BUSINESS_THRESHOLD else "no",
-        "threshold": BUSINESS_THRESHOLD
+        "threshold": BUSINESS_THRESHOLD,
+        # TODO: Only pick the top 10
+        "feature_importance":dict(zip(post_df.columns, shap_values.flatten())),
     }
