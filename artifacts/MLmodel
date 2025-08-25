@@ -1,4 +1,4 @@
-artifact_path: mlflow-artifacts:/105948048693647850/models/m-89856b9902954bd8903a66dcace4393d/artifacts
+artifact_path: mlflow-artifacts:/105948048693647850/models/m-d34e665ee8b448c4a745f6385bbbc3a5/artifacts
 flavors:
   python_function:
     env:
@@ -15,11 +15,11 @@ flavors:
     sklearn_version: 1.7.1
 is_signature_from_type_hint: false
 mlflow_version: 3.3.1
-model_id: m-89856b9902954bd8903a66dcace4393d
-model_size_bytes: 295186
-model_uuid: m-89856b9902954bd8903a66dcace4393d
+model_id: m-d34e665ee8b448c4a745f6385bbbc3a5
+model_size_bytes: 773294
+model_uuid: m-d34e665ee8b448c4a745f6385bbbc3a5
 prompts: null
-run_id: 36b32222050945d9b44ad7ec440146c2
+run_id: f3852d2d10eb4a79b0a5d539b7e5bdef
 signature:
   inputs: '[{"type": "long", "name": "SK_ID_CURR", "required": true}, {"type": "string",
     "name": "NAME_CONTRACT_TYPE", "required": true}, {"type": "string", "name": "CODE_GENDER",
@@ -121,4 +121,4 @@ signature:
     2]}}]'
   params: null
 type_hint_from_example: false
-utc_time_created: '2025-08-25 12:01:13.610923'
+utc_time_created: '2025-08-25 17:51:32.800426'
