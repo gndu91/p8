@@ -23,7 +23,7 @@ API_URL = "https://p8-ikr6.onrender.com/predict"
 def load_data(dataset_name, sample_size=None):
     """Charge les données et les met en cache."""
     try:
-        df = get_dataset(dataset_name)
+        df = pd.read_csv(dataset_name + '.csv')
         if sample_size:
             return df.sample(n=sample_size, random_state=42)
         return df
