@@ -8,7 +8,7 @@ import pandas as pd
 from pathlib import Path
 
 # Chemin vers le dossier contenant les artefacts du modèle
-ARTIFACTS_DIR = Path(__file__).parent
+ARTIFACTS_DIR = Path('artifacts')
 
 # TODO: Store this as an artifact
 BUSINESS_THRESHOLD = 0.52
