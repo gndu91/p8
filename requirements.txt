@@ -1,3 +1,7 @@
 pandas
 tqdm
 requests
+fastapi
+pytest
+uvicorn
+httpx
