@@ -6,3 +6,6 @@ pytest
 uvicorn
 httpx
 shap
+streamlit
+plotly
+seaborn
