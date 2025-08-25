@@ -74,22 +74,22 @@ def test_predict_success_valid_client():
 
     # Send the request to the /predict endpoint
     response = client.post("/predict", json=payload)
-    
+
     # Assert a successful response
     assert response.status_code == 200
-    
+
     # Parse the JSON response and validate its structure
     data = response.json()
     expected_keys = ["client_id", "probability_default", "decision", "threshold"]
     assert all(key in data for key in expected_keys)
-    
+
     # Validate the content and types
     assert data["client_id"] == payload["SK_ID_CURR"]
     assert isinstance(data["probability_default"], float)
     assert 0.0 <= data["probability_default"] <= 1.0
     assert data["decision"] in ["yes", "no"]
     assert data["threshold"] == BUSINESS_THRESHOLD
-    
+
     # Validate the decision logic based on the returned probability
     expected_decision = "yes" if data["probability_default"] < BUSINESS_THRESHOLD else "no"
     assert data["decision"] == expected_decision
@@ -103,15 +103,15 @@ def test_predict_with_missing_fields():
     The backend pipeline is expected to handle the resulting NaNs.
     """
     sample_row = features_df.iloc[1].to_dict()
-    
+
     # Remove some fields to test robustness
     # 'AMT_CREDIT' is "required" in MLmodel, 'OWN_CAR_AGE' is optional.
     del sample_row['AMT_CREDIT']
     if 'OWN_CAR_AGE' in sample_row:
         del sample_row['OWN_CAR_AGE']
-        
+
     payload = sanitize_for_json(sample_row)
-    
+
     response = client.post("/predict", json=payload)
 
     # The request should still succeed (200 OK)
@@ -129,14 +129,14 @@ def test_predict_missing_client_id():
     sample_row = features_df.iloc[2].to_dict()
     # Remove the client ID from the payload
     del sample_row['SK_ID_CURR']
-    
+
     payload = sanitize_for_json(sample_row)
-    
+
     response = client.post("/predict", json=payload)
-    
+
     assert response.status_code == 200
     data = response.json()
-    
+
     # The client_id in the response should be None
     assert data["client_id"] is None
     assert "probability_default" in data
@@ -172,3 +172,71 @@ def test_predict_invalid_data_type():
     # **FIX:** Make the assertion more general to match different Pydantic error messages.
     # We just check for the key phrase "Input should be a valid".
     assert "Input should be a valid" in data["detail"][0]["msg"]
+
+
+
+def test_model_performance_on_test_set():
+    """
+    Tests the model's performance on a larger sample of the test set.
+    It checks if the model's accuracy is above a minimum threshold (50%),
+    acting as a basic check to ensure it's better than random guessing.
+    It also prints the full results for manual inspection.
+    """
+    N_SAMPLES = 1024
+    MIN_ACCURACY = 0.50
+
+    test_df = get_dataset("application_train").sample(N_SAMPLES)
+
+    # 2. Pop the "TARGET" to make sure there is no leak.
+    real_targets = test_df.pop("TARGET")
+    features_only_df = test_df
+
+    results = []
+    correct_predictions = 0
+
+    # 3. Iterate over the sample, get predictions, and compare
+    for index, row in features_only_df.iterrows():
+        payload = sanitize_for_json(row.to_dict())
+        response = client.post("/predict", json=payload)
+
+        assert response.status_code == 200, f"API call failed for client SK_ID_CURR {payload.get('SK_ID_CURR')}"
+
+        data = response.json()
+
+        real_target = real_targets.loc[index]
+        decision = data["decision"]
+        probability = data["probability_default"]
+
+        # A decision is correct if:
+        # - We grant a loan ('yes') to a non-defaulter (TARGET=0)
+        # - We deny a loan ('no') to a defaulter (TARGET=1)
+        is_correct = (decision == 'yes' and real_target == 0) or \
+                     (decision == 'no' and real_target == 1)
+
+        if is_correct:
+            correct_predictions += 1
+
+        results.append({
+            "SK_ID_CURR": payload.get("SK_ID_CURR"),
+            "Real Value (TARGET)": real_target,
+            "Returned Decision": decision,
+            "Returned Probability": probability,
+            "Correct?": "Yes" if is_correct else "No"
+        })
+
+    # 4. Show the decisions for all items as requested
+    results_df = pd.DataFrame(results)
+    print("\n--- Model Performance Test Results (on 1024 samples) ---")
+    # Use to_string() to ensure all rows are printed to the console
+    print(results_df.to_string())
+    print("----------------------------------------------------------\n")
+
+    # 5. Make sure at least 50% of the returned decisions are correct
+    accuracy = correct_predictions / len(features_only_df)
+
+    print(f"Total items tested: {len(features_only_df)}")
+    print(f"Correct predictions: {correct_predictions}")
+    print(f"Calculated Accuracy: {accuracy:.2%}")
+    print(f"Minimum Required Accuracy: {MIN_ACCURACY:.2%}")
+
+    assert accuracy >= MIN_ACCURACY, f"Model accuracy ({accuracy:.2%}) is below the required threshold of {MIN_ACCURACY:.2%}"
