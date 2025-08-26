@@ -1,3 +1,5 @@
+from os import environ
+
 import streamlit as st
 import requests
 import pandas as pd
@@ -134,11 +136,11 @@ def plot_bivariate_analysis(all_data, client_data, feature_x, feature_y):
 st.title("Dashboard de Scoring Crédit pour 'Prêt à Dépenser'")
 st.markdown("Ce tableau de bord interactif aide les chargés de clientèle à comprendre les décisions d'octroi de crédit.")
 
-test_df = load_data('application_test')
-try:
-    train_df = pd.concat([load_data('application_train.0'), load_data('application_train.1')])
-except MemoryError:
-    train_df = load_data('application_sample')
+# TODO: What to chose? Train or Test?
+if environ.get('ENVIRONMENT') == 'local':
+    test_df = train_df = get_dataset('application_test')
+else:
+    test_df = train_df = load_data('application_sample')
 global_importance_df = load_global_importance()
 
 if test_df is None or train_df is None:
