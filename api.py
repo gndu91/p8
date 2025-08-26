@@ -44,10 +44,6 @@ model_pipeline = joblib.load(ARTIFACTS_DIR / "model.pkl")
 model_step = model_pipeline.named_steps['model']
 if type(model_step).__name__ == 'LGBMClassifier':
     explainer = TreeExplainer(model_step)
-    base_value = \
-        explainer.expected_value[1] \
-        if isinstance(explainer.expected_value, list) \
-        else explainer.expected_value
 else:
     raise NotImplementedError(
         f"Unsupported model, please add the explainer associated with models of type {type(model_step)}")
@@ -105,11 +101,4 @@ async def predict(client_data: ClientDataModel):
         "threshold": BUSINESS_THRESHOLD,
         # TODO: Only pick the top 10
         "feature_importance":dict(zip(post_df.columns, shap_values.flatten())),
-        "shap_explanation": {
-            "base_value": base_value,
-            # On envoie les valeurs SHAP pour la classe 1 (défaut)
-            "shap_values": shap_values[1].flatten().tolist() if isinstance(shap_values, list) else shap_values.flatten().tolist(),
-            "feature_names": post_df.columns.tolist(),
-            "feature_values": post_df.iloc[0].values.tolist()
-        }
     }
