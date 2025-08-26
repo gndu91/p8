@@ -1,0 +1,82 @@
+[
+  {
+    "feature": "EXT_SOURCE_3",
+    "importance": 0.37708868405584417
+  },
+  {
+    "feature": "EXT_SOURCE_2",
+    "importance": 0.3302472787678126
+  },
+  {
+    "feature": "EXT_SOURCE_1",
+    "importance": 0.1648072652850281
+  },
+  {
+    "feature": "AMT_GOODS_PRICE",
+    "importance": 0.142669582074898
+  },
+  {
+    "feature": "DAYS_EMPLOYED",
+    "importance": 0.12342404648582403
+  },
+  {
+    "feature": "AMT_CREDIT",
+    "importance": 0.11930919064928429
+  },
+  {
+    "feature": "CODE_GENDER",
+    "importance": 0.1035544525680846
+  },
+  {
+    "feature": "OWN_CAR_AGE",
+    "importance": 0.09663045340102054
+  },
+  {
+    "feature": "NAME_EDUCATION_TYPE_Highereducation",
+    "importance": 0.07520897234823694
+  },
+  {
+    "feature": "AMT_ANNUITY",
+    "importance": 0.0686480502114485
+  },
+  {
+    "feature": "DAYS_BIRTH",
+    "importance": 0.06800020606653774
+  },
+  {
+    "feature": "NAME_CONTRACT_TYPE_Cashloans",
+    "importance": 0.061287148031289165
+  },
+  {
+    "feature": "DAYS_ID_PUBLISH",
+    "importance": 0.052309357971468864
+  },
+  {
+    "feature": "NAME_FAMILY_STATUS_Married",
+    "importance": 0.04854020653903402
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_YEAR",
+    "importance": 0.044153797069450565
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_QRT",
+    "importance": 0.03147083248210062
+  },
+  {
+    "feature": "REGION_RATING_CLIENT_W_CITY",
+    "importance": 0.031180903275199186
+  },
+  {
+    "feature": "DAYS_LAST_PHONE_CHANGE",
+    "importance": 0.028449029074051054
+  },
+  {
+    "feature": "NAME_EDUCATION_TYPE_Secondarysecondaryspecial",
+    "importance": 0.02319061580796182
+  },
+  {
+    "feature": "OT_3",
+    "importance": 0.022623004653383905
+  }
+]
